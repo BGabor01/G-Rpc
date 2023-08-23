@@ -5,7 +5,7 @@ import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 
-class RPCClient:
+class Client:
 
     def __init__(self, service_name, method_name, host='localhost'):
         self.logger = logging.getLogger('Client')
@@ -49,6 +49,6 @@ class RPCClient:
         return self.response
 
 if __name__ == "__main__":
-    client = RPCClient(service_name='example_service', method_name='echo')
+    client = Client(service_name='example_service', method_name='echo')
     response = client.send_request("Hello, RPC!")
     print("Received:", response.decode())
