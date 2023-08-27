@@ -13,5 +13,6 @@ def retry(max_retries=3, delay = 1, exceptions=(Exception,)):
                     time.sleep(delay)
 
             args[0].logger.error(f"Error: Reached max retries. Not retrying further.")
-            return wrapper
+            raise TimeoutError("Error: Reached max retries. Not retrying further.")
+        return wrapper
     return decorator
