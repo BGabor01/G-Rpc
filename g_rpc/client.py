@@ -1,7 +1,7 @@
 import pika
 import uuid
 import logging
-from decorators.retry_dec import retry
+from .decorators.retry_dec import retry
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logging.getLogger("pika").setLevel(logging.WARNING)
