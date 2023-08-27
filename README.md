@@ -2,7 +2,7 @@
 g-rpc is a simple RPC (Remote Procedure Call) implementation for Python. It allows for inter-process communication using the lightweight pika library.
 
 ### Installation
-pip install git+https://github.com/baloghG01/G-Rpc
+pip install git+https://github.com/baloghG01/G-Rpc#egg=g-rpc
 
 
 ### Usage
