@@ -1,9 +1,10 @@
 import pika
 import uuid
 import logging
+from decorators import retry
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
+logging.getLogger("pika").setLevel(logging.WARNING)
 
 class Client:
 
@@ -29,7 +30,9 @@ class Client:
         if self.corr_id == properties.correlation_id:
             self.response = body
 
-    def send_request(self, method_name, request_body):
+
+    @retry(max_retries=3, delay=2, exceptions=(TimeoutError,))
+    def send_request(self, method_name, request_body, time_limit = 5):
         self.logger.info(f"Sending request with body: {request_body}")
         self.response = None
         self.corr_id = str(uuid.uuid4())
@@ -43,8 +46,12 @@ class Client:
             ),
             body=request_body
         )
-        while self.response is None:
-            self.connection.process_data_events()
+
+        self.connection.process_data_events(time_limit=time_limit)
+
+        if self.response is None:
+            raise TimeoutError("RPC call time out!")
+
         return self.response
 
 if __name__ == "__main__":
