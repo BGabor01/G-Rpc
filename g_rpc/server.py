@@ -6,8 +6,8 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 class Server:
 
     def __init__(self, service_name, host='localhost'):
-        self.logger = logging.getLogger('Client')
-        self.logger.info("Client initialized.")
+        self.logger = logging.getLogger('Server')
+        self.logger.info("RPC server initialized.")
 
         self.host = host
         self.service_name = service_name
