@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='g-rpc',
-    version='1.1.8',
+    version='1.1.9',
     description="A simple client and server for rpc methods",
     packages=find_packages(),
     install_requires=[
