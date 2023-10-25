@@ -38,7 +38,7 @@ class Server:
             response = callback(body)
             ch.basic_publish(
                 exchange='',
-                routing_key=properties.reply_to,
+                routing_key=str(properties.responseQueueName),
                 properties=pika.BasicProperties(
                     correlation_id=properties.correlation_id
                 ),
