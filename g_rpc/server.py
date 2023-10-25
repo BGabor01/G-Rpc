@@ -6,7 +6,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 
 class Server:
 
-    def __init__(self, service_name, host='localhost', user_name = 'guest', password='guest'):
+    def __init__(self, service_name, host='localhost', user_name='guest', password='guest'):
         self.logger = logging.getLogger('Server')
         self.logger.info("RPC server initialized.")
 
@@ -35,22 +35,29 @@ class Server:
         self.channel.queue_declare(queue=routing_key)
 
         def on_request(ch, method, properties, body):
-            request_data = json.loads(body.decode())
-            self.logger.info(f"Received request on method {method_name} with body: {request_data}")
-            response_queue_name = request_data['responseQueueName']
-            corr_id = request_data['correlationId']
-            response = callback(body)
-            ch.basic_publish(
-                exchange='',
-                routing_key=response_queue_name,
-                properties=pika.BasicProperties(
-                    correlation_id=corr_id
-                ),
-                body=response
-            )
-            ch.basic_ack(delivery_tag=method.delivery_tag)
+            try:
+                request_data = json.loads(body.decode())
+                self.logger.info(f"Received request on method {method_name} with body: {request_data}")
+                response_queue_name = request_data['responseQueueName']
+                corr_id = request_data['correlationId']
+
+                response_data = callback(request_data)
+                response = json.dumps(response_data).encode()
+
+                ch.basic_publish(
+                    exchange='',
+                    routing_key=response_queue_name,
+                    properties=pika.BasicProperties(
+                        correlation_id=corr_id
+                    ),
+                    body=response
+                )
+                ch.basic_ack(delivery_tag=method.delivery_tag)
+            except Exception as e:
+                self.logger.error(f"Error processing request: {e}")
 
         self.channel.basic_consume(queue=routing_key, on_message_callback=on_request)
+
 
 
 def handle_echo_request(body):
