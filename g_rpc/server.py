@@ -30,7 +30,7 @@ class Server:
         """
         Add a method to listen to and provide its callback function.
         """
-        routing_key = f"{self.service_name}.{method_name}"
+        routing_key = f"{self.service_name}_{method_name}"
         self.channel.queue_declare(queue=routing_key)
 
         def on_request(ch, method, properties, body):
