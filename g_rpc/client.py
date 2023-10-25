@@ -8,17 +8,13 @@ logging.getLogger("pika").setLevel(logging.WARNING)
 
 class Client:
 
-    def __init__(self, service_name, host='localhost', user_name = 'guest', password='guest'):
+    def __init__(self, service_name, host='localhost'):
         self.logger = logging.getLogger('Client')
         self.logger.info("Client initialized.")
 
-        self.user_name = user_name
-        self.password = password
         self.host = host
         self.service_name = service_name
-
-        credentials = pika.PlainCredentials(self.user_name, self.password)
-        self.connection = pika.BlockingConnection(pika.ConnectionParameters(host=self.host, credentials=credentials))
+        self.connection = pika.BlockingConnection(pika.ConnectionParameters(host=self.host))
         self.channel = self.connection.channel()
         self.response_queue = self.channel.queue_declare(queue='', exclusive=True).method.queue
         self.channel.basic_consume(
@@ -40,12 +36,12 @@ class Client:
         self.logger.info(f"Sending request with body: {request_body}")
         self.response = None
         self.corr_id = str(uuid.uuid4())
-        routing_key = f"{self.service_name}_{method_name}"
+        routing_key = f"{self.service_name}.{method_name}"
         self.channel.basic_publish(
             exchange='',
             routing_key=routing_key,
             properties=pika.BasicProperties(
-                responseQueueName=self.response_queue,
+                reply_to=self.response_queue,
                 correlation_id=self.corr_id,
             ),
             body=request_body
