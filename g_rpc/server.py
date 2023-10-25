@@ -1,5 +1,6 @@
 import pika
 import logging
+import json
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
@@ -34,11 +35,13 @@ class Server:
         self.channel.queue_declare(queue=routing_key)
 
         def on_request(ch, method, properties, body):
-            self.logger.info(f"Received request on method {method_name} with body: {body.decode()}")
+            request_data = json.loads(body.decode())
+            self.logger.info(f"Received request on method {method_name} with body: {request_data}")
+            response_queue_name = request_data['responseQueueName']
             response = callback(body)
             ch.basic_publish(
                 exchange='',
-                routing_key=str(properties.responseQueueName),
+                routing_key=response_queue_name,
                 properties=pika.BasicProperties(
                     correlation_id=properties.correlation_id
                 ),
