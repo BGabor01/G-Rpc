@@ -40,12 +40,12 @@ class Client:
         self.logger.info(f"Sending request with body: {request_body}")
         self.response = None
         self.corr_id = str(uuid.uuid4())
-        routing_key = f"{self.service_name}.{method_name}"
+        routing_key = f"{self.service_name}_{method_name}"
         self.channel.basic_publish(
             exchange='',
             routing_key=routing_key,
             properties=pika.BasicProperties(
-                reply_to=self.response_queue,
+                responseQueueName=self.response_queue,
                 correlation_id=self.corr_id,
             ),
             body=request_body
