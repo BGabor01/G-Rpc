@@ -8,13 +8,17 @@ logging.getLogger("pika").setLevel(logging.WARNING)
 
 class Client:
 
-    def __init__(self, service_name, host='localhost'):
+    def __init__(self, service_name, host='localhost', user_name = 'guest', password='guest'):
         self.logger = logging.getLogger('Client')
         self.logger.info("Client initialized.")
 
+        self.user_name = user_name
+        self.password = password
         self.host = host
         self.service_name = service_name
-        self.connection = pika.BlockingConnection(pika.ConnectionParameters(host=self.host))
+
+        credentials = pika.PlainCredentials(self.user_name, self.password)
+        self.connection = pika.BlockingConnection(pika.ConnectionParameters(host=self.host, credentials=credentials))
         self.channel = self.connection.channel()
         self.response_queue = self.channel.queue_declare(queue='', exclusive=True).method.queue
         self.channel.basic_consume(

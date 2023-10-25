@@ -5,18 +5,21 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 
 class Server:
 
-    def __init__(self, service_name, host='localhost'):
+    def __init__(self, service_name, host='localhost', user_name = 'guest', password='guest'):
         self.logger = logging.getLogger('Server')
         self.logger.info("RPC server initialized.")
 
         self.host = host
         self.service_name = service_name
+        self.user_name = user_name
+        self.password = password
        
         self.connection = None
         self.channel = None
 
     def connect(self):
-        self.connection = pika.BlockingConnection(pika.ConnectionParameters(self.host))
+        credentials = pika.PlainCredentials(self.user_name, self.password)
+        self.connection = pika.BlockingConnection(pika.ConnectionParameters(self.host, credentials=credentials))
         self.channel = self.connection.channel()
 
     def start(self):
@@ -50,7 +53,7 @@ def handle_echo_request(body):
     return body
 
 if __name__ == '__main__':
-    server = Server(service_name='example_service')
+    server = Server(service_name='example_service', user_name="username", password="password")
     server.connect()
     server.add_method('echo', handle_echo_request)
     server.start()
