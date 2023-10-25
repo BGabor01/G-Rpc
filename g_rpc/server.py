@@ -38,12 +38,13 @@ class Server:
             request_data = json.loads(body.decode())
             self.logger.info(f"Received request on method {method_name} with body: {request_data}")
             response_queue_name = request_data['responseQueueName']
+            corr_id = request_data['correlationId']
             response = callback(body)
             ch.basic_publish(
                 exchange='',
                 routing_key=response_queue_name,
                 properties=pika.BasicProperties(
-                    correlation_id=properties.correlation_id
+                    correlation_id=corr_id
                 ),
                 body=response
             )
