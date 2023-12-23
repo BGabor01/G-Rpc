@@ -8,13 +8,14 @@ logging.getLogger("pika").setLevel(logging.WARNING)
 
 class Client:
 
-    def __init__(self, service_name, host='localhost'):
+    def __init__(self, service_name, host='localhost', username='guest', password='guest'):
+        credentials = pika.PlainCredentials(username, password)
         self.logger = logging.getLogger('Client')
         self.logger.info("Client initialized.")
 
         self.host = host
         self.service_name = service_name
-        self.connection = pika.BlockingConnection(pika.ConnectionParameters(host=self.host))
+        self.connection = pika.BlockingConnection(pika.ConnectionParameters(host=self.host, credentials=credentials))
         self.channel = self.connection.channel()
         self.response_queue = self.channel.queue_declare(queue='', exclusive=True).method.queue
         self.channel.basic_consume(
@@ -55,6 +56,6 @@ class Client:
         return self.response
 
 if __name__ == "__main__":
-    client = Client(service_name='example_service')
+    client = Client(service_name='example_service', username='your_username', password='your_password')
     response = client.send_request(method_name='echo', request_body="Hello, RPC!")
     print("Received:", response.decode())
