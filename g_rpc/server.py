@@ -5,18 +5,22 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 
 class Server:
 
-    def __init__(self, service_name, host='localhost'):
+    def __init__(self, service_name, host='localhost', username='guest', password='guest'):
+        
         self.logger = logging.getLogger('Server')
         self.logger.info("RPC server initialized.")
 
         self.host = host
         self.service_name = service_name
+        self.username = username
+        self.password = password
        
         self.connection = None
         self.channel = None
 
     def connect(self):
-        self.connection = pika.BlockingConnection(pika.ConnectionParameters(self.host))
+        credentials = pika.PlainCredentials(self.username, self.password)
+        self.connection = pika.BlockingConnection(pika.ConnectionParameters(host=self.host, credentials=credentials))
         self.channel = self.connection.channel()
 
     def start(self):
